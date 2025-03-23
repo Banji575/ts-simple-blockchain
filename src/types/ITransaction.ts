@@ -1,6 +1,6 @@
 export interface ITransaction {
     sender: string
-    recevier: string
+    receiver: string
     amount: number
     signature: string
 }
