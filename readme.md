@@ -8,16 +8,12 @@ This project is a simple implementation of a blockchain using TypeScript. It dem
 - **Hashing**: Use SHA256 hashing for block integrity.
 - **Chain Validation**: Ensure the integrity of the blockchain by validating the chain.
 
-## Prerequisites
-
-- Node.js (version 14 or later)
-- npm (version 6 or later)
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Banji575/ts-simple-blockchain
    ```
 2. Navigate to the project directory:
    ```bash
@@ -48,7 +44,7 @@ This will open the project in your default web browser.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Contributing
 
