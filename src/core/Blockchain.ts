@@ -1,5 +1,6 @@
 import { Block } from "./Block";
 import { ITransaction } from "../types/ITransaction";
+import { TransactionValidator } from "../utils/TransactionValidator";
 
 export class Blockchain {
     public chain: Block[] = []
@@ -9,7 +10,12 @@ export class Blockchain {
     }
 
     createGenesisBlock(): Block {
-        const genesisTransaction: ITransaction[] = [{ sender: "Genesis", recevier: "Genesis", amount: 0 }]
+        const genesisTransaction: ITransaction[] = [{ 
+            sender: "Genesis", 
+            recevier: "Genesis", 
+            amount: 0,
+            signature: 'GENESIS_TRANSACTION'
+        }]
         return new Block(Date.now(), genesisTransaction, '0')
     }
 
@@ -18,6 +24,15 @@ export class Blockchain {
     }
 
     public addBlock(newBlock: Block) {
+
+        for(const tx of newBlock.transactions){
+            if(!TransactionValidator.isValidTransaction(tx)){
+                console.warn("❌ Обнаружена недействительная транзакция. Блок отклонён.", tx);
+                return;
+            }
+        }
+
+
         newBlock.previosHash = this.getLatestBlock().hash
         newBlock.mineBlock(this.difficulty)
         this.chain.push(newBlock)
