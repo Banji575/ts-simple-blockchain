@@ -5,14 +5,16 @@ import { TransactionValidator } from "../utils/TransactionValidator";
 export class Blockchain {
     public chain: Block[] = []
     public difficulty: number = 3
+    public miningReward: number = 100
+
     constructor() {
         this.chain.push(this.createGenesisBlock())
     }
 
     createGenesisBlock(): Block {
-        const genesisTransaction: ITransaction[] = [{ 
-            sender: "Genesis", 
-            receiver: "Genesis", 
+        const genesisTransaction: ITransaction[] = [{
+            sender: "Genesis",
+            receiver: "Genesis",
             amount: 0,
             signature: 'GENESIS_TRANSACTION'
         }]
@@ -23,14 +25,26 @@ export class Blockchain {
         return this.chain[this.chain.length - 1]
     }
 
-    public addBlock(newBlock: Block) {
-        for(const tx of newBlock.transactions){
-            if(!TransactionValidator.isValidTransaction(tx)){
+    public addBlock(newBlock: Block, minerAddress: string) {
+        for (const tx of newBlock.transactions) {
+            if (!TransactionValidator.isValidTransaction(tx)) {
                 console.warn("❌ Обнаружена недействительная транзакция. Блок отклонён.", tx);
+                return;
+            }
+            if (tx.sender !== "Genesis" && this.getBalance(tx.sender) < tx.amount) {
+                console.warn("❌ Недостаточно средств для транзакции. Блок отклонён.", tx);
                 return;
             }
         }
 
+        const rewardTx: ITransaction = {
+            sender: "Genesis",
+            receiver: minerAddress,
+            amount: this.miningReward,
+            signature: "MINIG_REWARD"
+        }
+
+        newBlock.transactions.push(rewardTx)
 
         newBlock.previosHash = this.getLatestBlock().hash
         newBlock.mineBlock(this.difficulty)
@@ -50,5 +64,20 @@ export class Blockchain {
 
         }
         return true
+    }
+    public getBalance(address: string) {
+        let balance = 0
+        for (const block of this.chain) {
+            for (const tx of block.transactions) {
+                if (tx.receiver === address) {
+                    balance += tx.amount
+                }
+                if (tx.sender === address) {
+                    balance -= tx.amount
+                }
+
+            }
+        }
+        return balance
     }
 }
