@@ -3,7 +3,8 @@ import { SignatureVerifier } from "../wallet/Signature";
 
 export class TransactionValidator{
     static isValidTransaction(tx:ITransaction):boolean{
-        const transactionData = `${tx.sender}|${tx.receiver}|${tx.amount}`
+        const fee = tx.fee ?? 1
+        const transactionData = `${tx.sender}|${tx.receiver}|${tx.amount}|${fee}`
         return SignatureVerifier.verify(transactionData, tx.signature, tx.sender)
     }
 }

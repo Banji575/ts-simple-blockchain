@@ -4,15 +4,15 @@ import { Wallet } from "./wallet/Wallet"
 
 testBlockchain()
 
-console.log('Тест подписи')
+// console.log('Тест подписи')
 
-const wallet = new Wallet()
-const address = wallet.getAddress()
-console.log('Адрес:', address)
+// const wallet = new Wallet()
+// const address = wallet.getAddress()
+// console.log('Адрес:', address)
 
-const message = 'Hello, world!'
-const signature = wallet.sign(message)
-console.log('Подпись:', signature)
+// const message = 'Hello, world!'
+// const signature = wallet.sign(message)
+// console.log('Подпись:', signature)
 
-const isValid = SignatureVerifier.verify(message, signature, wallet.publicKey)
-console.log('Подпись действительна:', isValid)
+// const isValid = SignatureVerifier.verify(message, signature, wallet.publicKey)
+// console.log('Подпись действительна:', isValid)

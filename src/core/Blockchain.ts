@@ -1,24 +1,34 @@
 import { Block } from "./Block";
 import { ITransaction } from "../types/ITransaction";
 import { TransactionValidator } from "../utils/TransactionValidator";
+import { Wallet } from "../wallet/Wallet";
+import { TransactionFactory } from "../utils/TransactionFactory";
 
 export class Blockchain {
     public chain: Block[] = []
     public difficulty: number = 3
     public miningReward: number = 100
+    private systemWallet: Wallet
 
-    constructor() {
+    constructor(systemWallet: Wallet) {
+        this.systemWallet = systemWallet
         this.chain.push(this.createGenesisBlock())
+
     }
 
     createGenesisBlock(): Block {
-        const genesisTransaction: ITransaction[] = [{
-            sender: "Genesis",
-            receiver: "Genesis",
-            amount: 0,
-            signature: 'GENESIS_TRANSACTION'
-        }]
-        return new Block(Date.now(), genesisTransaction, '0')
+        // const genesisTransaction: ITransaction[] = [{
+        //     sender: "Genesis",
+        //     receiver: "Genesis",
+        //     amount: 0,
+        //     signature: 'GENESIS_TRANSACTION'
+        // }]
+        const genesisTransaction: ITransaction = TransactionFactory.createSignedTransaction(
+            this.systemWallet,
+            this.systemWallet.publicKey,
+            0
+        )
+        return new Block(Date.now(), [genesisTransaction], '0')
     }
 
     getLatestBlock(): Block {
@@ -26,23 +36,27 @@ export class Blockchain {
     }
 
     public addBlock(newBlock: Block, minerAddress: string) {
+        let totalFee = 0
         for (const tx of newBlock.transactions) {
             if (!TransactionValidator.isValidTransaction(tx)) {
                 console.warn("❌ Обнаружена недействительная транзакция. Блок отклонён.", tx);
                 return;
             }
-            if (tx.sender !== "Genesis" && this.getBalance(tx.sender) < tx.amount) {
+            if (tx.sender !== this.systemWallet.publicKey &&
+                this.getBalance(tx.sender) < (tx.amount + (tx.fee ?? 1))) {
                 console.warn("❌ Недостаточно средств для транзакции. Блок отклонён.", tx);
                 return;
             }
+            totalFee += tx.fee ?? 1
         }
 
-        const rewardTx: ITransaction = {
-            sender: "Genesis",
-            receiver: minerAddress,
-            amount: this.miningReward,
-            signature: "MINIG_REWARD"
-        }
+
+        const rewardTx: ITransaction = TransactionFactory.createSignedTransaction(
+            this.systemWallet,
+            minerAddress,
+            this.miningReward + totalFee,
+            0
+        )
 
         newBlock.transactions.push(rewardTx)
 
@@ -74,6 +88,7 @@ export class Blockchain {
                 }
                 if (tx.sender === address) {
                     balance -= tx.amount
+                    balance -= tx.fee ?? 1
                 }
 
             }

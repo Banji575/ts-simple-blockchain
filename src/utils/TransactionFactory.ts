@@ -5,15 +5,17 @@ export class TransactionFactory {
     static createSignedTransaction(
         senderWallet: Wallet,
         receiver: string,
-        amount: number
+        amount: number,
+        fee:number = 1
     ): ITransaction {
-        const dataToSign = `${senderWallet.publicKey}|${receiver}|${amount}`
+        const dataToSign = `${senderWallet.publicKey}|${receiver}|${amount}|${fee}`
         const signature = senderWallet.sign(dataToSign)
       return{
         sender:senderWallet.publicKey,
         receiver,
         amount,
-        signature
+        signature,
+        fee
       }
     }
 }
